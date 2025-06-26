@@ -9,7 +9,7 @@
     "lint": "next lint",
     "prepare": "husky",
     "test": "jest",
-    "db:generate": "drizzle-kit generate --config=src/db/config.ts",
+    "db:generate": "drizzle-kit generate --config=src/db/config.ts --name",
     "db:push": "drizzle-kit push --config=src/db/config.ts",
     "db:studio": "drizzle-kit studio --config=src/db/config.ts"
   },
