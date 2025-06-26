@@ -24,11 +24,52 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          # Get list of all deployments (excluding production)
-          deployments=$(vercel ls --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID | grep -v "production" | tail -n +2 | head -n -5 | awk '{print $1}')
+          echo "Starting deployment cleanup process..."
 
-          # Delete old deployments (keep last 5)
-          for deployment in $deployments; do
-            echo "Deleting deployment: $deployment"
-            vercel rm $deployment --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --yes
-          done
+          # Get all deployments sorted by creation date (newest first)
+          all_deployments=$(vercel ls --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID 2>/dev/null | tail -n +2)
+
+          # Separate production and non-production deployments
+          production_deployments=$(echo "$all_deployments" | grep "production" | awk '{print $1}')
+          non_production_deployments=$(echo "$all_deployments" | grep -v "production" | awk '{print $1}')
+
+          # Count deployments
+          prod_count=$(echo "$production_deployments" | grep -c '^' 2>/dev/null || echo 0)
+          non_prod_count=$(echo "$non_production_deployments" | grep -c '^' 2>/dev/null || echo 0)
+
+          echo "Production deployments found: $prod_count"
+          echo "Non-production deployments found: $non_prod_count"
+
+          # Cleanup non-production deployments (keep last 5)
+          if [ "$non_prod_count" -gt 5 ]; then
+            echo "Cleaning up non-production deployments..."
+            non_prod_to_delete=$(echo "$non_production_deployments" | tail -n +6)
+            
+            echo "Non-production deployments to delete:"
+            echo "$non_prod_to_delete"
+            
+            for deployment in $non_prod_to_delete; do
+              echo "Deleting non-production deployment: $deployment"
+              vercel rm $deployment --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --yes
+            done
+          else
+            echo "Only $non_prod_count non-production deployments found, keeping all"
+          fi
+
+          # Cleanup production deployments (keep last 5)
+          if [ "$prod_count" -gt 5 ]; then
+            echo "Cleaning up production deployments..."
+            prod_to_delete=$(echo "$production_deployments" | tail -n +6)
+            
+            echo "Production deployments to delete:"
+            echo "$prod_to_delete"
+            
+            for deployment in $prod_to_delete; do
+              echo "Deleting production deployment: $deployment"
+              vercel rm $deployment --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --yes
+            done
+          else
+            echo "Only $prod_count production deployments found, keeping all"
+          fi
+
+          echo "Cleanup process completed!"
