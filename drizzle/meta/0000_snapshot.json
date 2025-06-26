@@ -1,5 +1,5 @@
 {
-  "id": "23141510-feda-4414-b434-aea122173cfb",
+  "id": "985cdb37-433f-487c-b3df-ec8ef4c3136c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -28,6 +28,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         },
         "name": {
           "name": "name",
