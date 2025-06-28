@@ -43,9 +43,11 @@ jobs:
           # Cleanup non-production deployments (keep last 5)
           if [ "$non_prod_count" -gt 5 ]; then
             echo "Cleaning up non-production deployments..."
-            non_prod_to_delete=$(echo "$non_production_deployments" | tail -n +6)
+            # Calculate how many to delete and get the oldest ones
+            to_delete_count=$((non_prod_count - 5))
+            non_prod_to_delete=$(echo "$non_production_deployments" | tail -n $to_delete_count)
             
-            echo "Non-production deployments to delete:"
+            echo "Non-production deployments to delete (keeping 5 newest):"
             echo "$non_prod_to_delete"
             
             for deployment in $non_prod_to_delete; do
@@ -59,9 +61,11 @@ jobs:
           # Cleanup production deployments (keep last 5)
           if [ "$prod_count" -gt 5 ]; then
             echo "Cleaning up production deployments..."
-            prod_to_delete=$(echo "$production_deployments" | tail -n +6)
+            # Calculate how many to delete and get the oldest ones
+            to_delete_count=$((prod_count - 5))
+            prod_to_delete=$(echo "$production_deployments" | tail -n $to_delete_count)
             
-            echo "Production deployments to delete:"
+            echo "Production deployments to delete (keeping 5 newest):"
             echo "$prod_to_delete"
             
             for deployment in $prod_to_delete; do
