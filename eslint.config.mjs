@@ -11,6 +11,49 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript', 'plugin:prettier/recommended'),
+  {
+    rules: {
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          prefer: 'type-imports',
+          disallowTypeAnnotations: false,
+          fixStyle: 'separate-type-imports',
+        },
+      ],
+      '@typescript-eslint/explicit-function-return-type': [
+        'error',
+        {
+          allowExpressions: false,
+          allowTypedFunctionExpressions: true,
+          allowHigherOrderFunctions: true,
+          allowDirectConstAssertionInArrowFunctions: true,
+          allowConciseArrowFunctionExpressionsStartingWithVoid: false,
+        },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ClassDeclaration',
+          message: 'Classes are not allowed. Use functions and hooks instead.',
+        },
+        {
+          selector: 'ClassExpression',
+          message: 'Class expressions are not allowed. Use functions and hooks instead.',
+        },
+      ],
+      'functional/prefer-immutable-types': [
+        'error',
+        {
+          enforcement: 'ReadonlyDeep',
+          ignoreInferredTypes: false,
+          ignoreNamePattern: '^mutable',
+          ignoreTypePattern: '^Mutable',
+        },
+      ],
+      '@typescript-eslint/prefer-function-type': 'error',
+    },
+  },
 ];
 
 export default eslintConfig;
